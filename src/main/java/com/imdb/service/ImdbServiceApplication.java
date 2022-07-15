@@ -16,8 +16,8 @@ public class ImdbServiceApplication {
   /**
    * Loading IMDB datasets into the in-memory H2 database
    */
-  private static void loadData(){
-
+  private static void loadData() {
+     //test
   }
 
 }
