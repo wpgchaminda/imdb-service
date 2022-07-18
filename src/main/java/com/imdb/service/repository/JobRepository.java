@@ -9,6 +9,7 @@ public interface JobRepository extends CrudRepository<Job,Integer> {
 
   /**
    * Find By Name
+   *
    * @param name
    * @return Job
    */
@@ -16,6 +17,7 @@ public interface JobRepository extends CrudRepository<Job,Integer> {
 
   /**
    * Is Exists By Name
+   *
    * @param name
    * @return boolean
    */

@@ -9,6 +9,7 @@ public interface CrewTypeRepository extends CrudRepository<CrewType,Integer> {
 
   /**
    * Find By Name
+   *
    * @param name
    * @return CrewType
    */
@@ -16,6 +17,7 @@ public interface CrewTypeRepository extends CrudRepository<CrewType,Integer> {
 
   /**
    * Is Exists By Name
+   *
    * @param name
    * @return boolean
    */

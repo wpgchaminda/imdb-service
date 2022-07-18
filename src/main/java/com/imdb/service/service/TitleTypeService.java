@@ -17,6 +17,7 @@ public class TitleTypeService {
 
   /**
    * Save
+   *
    * @param titleType
    * @return TitleType
    */
@@ -31,10 +32,11 @@ public class TitleTypeService {
 
   /**
    * Find By Id
+   *
    * @param id
    * @return TitleType
    */
-  public TitleType findById(Integer id) {
+  public TitleType findById(final Integer id) {
     try {
       Optional<TitleType> optional = titleTypeRepository.findById(id);
       return optional.isPresent() ? optional.get() : null;
@@ -46,10 +48,11 @@ public class TitleTypeService {
 
   /**
    * Find By Name
+   *
    * @param name
    * @return TitleType
    */
-  public TitleType findByName(String name) {
+  public TitleType findByName(final String name) {
     try {
       return titleTypeRepository.findTitleTypeByNameIgnoreCase(name);
     } catch (Exception e) {
@@ -60,10 +63,11 @@ public class TitleTypeService {
 
   /**
    * Is Exists By Name
+   *
    * @param name
    * @return boolean
    */
-  public boolean existByName(String name) {
+  public boolean existByName(final String name) {
     try {
       return titleTypeRepository.existsByNameIgnoreCase(name);
     } catch (Exception e) {

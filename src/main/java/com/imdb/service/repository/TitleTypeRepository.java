@@ -9,6 +9,7 @@ public interface TitleTypeRepository extends CrudRepository<TitleType,Integer> {
 
   /**
    * Find By Name
+   *
    * @param name
    * @return TitleType
    */
@@ -16,6 +17,7 @@ public interface TitleTypeRepository extends CrudRepository<TitleType,Integer> {
 
   /**
    * Is Exists By Name
+   *
    * @param name
    * @return boolean
    */

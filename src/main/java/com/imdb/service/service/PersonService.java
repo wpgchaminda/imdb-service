@@ -17,6 +17,7 @@ public class PersonService {
 
   /**
    * Save
+   *
    * @param person
    * @return Person
    */
@@ -31,10 +32,11 @@ public class PersonService {
 
   /**
    * Find By Id
+   *
    * @param id
    * @return Person
    */
-  public Person findById(String id) {
+  public Person findById(final String id) {
     try {
       Optional<Person> optional = personRepository.findById(id);
       return optional.isPresent() ? optional.get() : null;

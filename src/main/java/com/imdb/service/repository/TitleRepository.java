@@ -14,7 +14,10 @@ public interface TitleRepository extends PagingAndSortingRepository<Title,String
 
   /**
    * Get Titles which are directed & written by the same person
-   * @param directorId,writerId,pageable
+   *
+   * @param directorId
+   * @param writerId
+   * @param pageable
    * @return Page<TitlePersonResult>
    */
   @Query("SELECT new com.imdb.service.dto.TitlePersonResult(t,p) " +

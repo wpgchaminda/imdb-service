@@ -18,6 +18,7 @@ import com.imdb.service.web.api.dto.ResponseBase;
 import com.imdb.service.web.api.dto.TitleCrewResult;
 import com.imdb.service.web.api.dto.TitlePrincipalResult;
 import com.imdb.service.web.api.dto.TitleResult;
+import com.imdb.service.web.exception.BadRequestException;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -38,8 +40,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(API_PATH +"/"+ImdbRestService.IMDB_API_PATH+"/"+ ImdbRestService.IMDB_API_VERSION)
 public class ImdbRestService {
 
-  public static final String IMDB_API_PATH="imdbapi";
-  public static final String IMDB_API_VERSION="1";
+  public static final String IMDB_API_PATH = "imdbapi";
+  public static final String IMDB_API_VERSION = "1";
 
   @Autowired
   private TitleService titleService;
@@ -62,6 +64,7 @@ public class ImdbRestService {
 
   /**
    * Get Title by id
+   *
    * @param id
    * @return GetTitleByIdResponse
    */
@@ -71,16 +74,20 @@ public class ImdbRestService {
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
   ResponseBase getTitleById(@PathVariable String id) {
+    //Validation
+    getTitleByIdValidation(id);
+
     //Query results
     Title title = titleService.findById(id);
 
     //Construct response
-    GetTitleByIdResponse response = CreateGetTitleByIdResponse(title);
+    GetTitleByIdResponse response = getTitleByIdResponse(title);
     return response;
   }
 
   /**
    * Get Title by id
+   *
    * @param id
    * @return GetTitleByIdResponse
    */
@@ -90,11 +97,14 @@ public class ImdbRestService {
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
   ResponseBase getPersonById(@PathVariable String id) {
+    //Validation
+    getPersonByIdValidation(id);
+
     //Query results
     Person person = personService.findById(id);
 
     //Construct response
-    GetPersonByIdResponse response = CreateGetPersonByIdResponse(person);
+    GetPersonByIdResponse response = getPersonByIdResponse(person);
     return response;
   }
 
@@ -112,6 +122,9 @@ public class ImdbRestService {
   public @ResponseBody
   PagingResponseBase getDirectorAndWriterSamePerson(@RequestParam(name = "page", defaultValue = "0") int page,
                                                     @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
+    //Validation
+    getDirectorAndWriterSamePersonValidate(page, pageSize);
+
     //Pageable
     Pageable pageable = PageRequest.of(page, pageSize);
 
@@ -120,17 +133,34 @@ public class ImdbRestService {
 
     //Construct Response
     DirectorAndWriterSamePersonResponse response =
-        CreateGetDirectorAndWriterSamePersonResponse(queryResults);
+        getDirectorAndWriterSamePersonResponse(queryResults);
     return response;
   }
 
   /**
+   * Validate getDirectorAndWriterSamePerson
+   *
+   * @param page
+   * @param pageSize
+   */
+  private void getDirectorAndWriterSamePersonValidate(final int page, final int pageSize) {
+    if (page < 0) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"page"});
+    }
+
+    if (pageSize < 1 || pageSize > 100) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"pageSize"});
+    }
+  }
+
+  /**
    * Create GetDirectorAndWriterSamePersonResponse
+   *
    * @param queryResults
    * @return DirectorAndWriterSamePersonResponse
    */
   private DirectorAndWriterSamePersonResponse
-  CreateGetDirectorAndWriterSamePersonResponse(final Page<TitlePersonResult> queryResults) {
+  getDirectorAndWriterSamePersonResponse(final Page<TitlePersonResult> queryResults) {
     DirectorAndWriterSamePersonResponse response = new DirectorAndWriterSamePersonResponse();
 
     if (queryResults.hasContent()) {
@@ -152,11 +182,27 @@ public class ImdbRestService {
   }
 
   /**
+   * Validate getTitleById
+   *
+   * @param id
+   */
+  private void getTitleByIdValidation(final String id) {
+    if (!StringUtils.hasText(id)) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"id"});
+    }
+
+    if (id.trim().length() > 25) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"id"});
+    }
+  }
+
+  /**
    * Create GetTitleByIdResponse
+   *
    * @param title
    * @return GetTitleByIdResponse
    */
-  private GetTitleByIdResponse CreateGetTitleByIdResponse(final Title title) {
+  private GetTitleByIdResponse getTitleByIdResponse(final Title title) {
     GetTitleByIdResponse response = new GetTitleByIdResponse();
     if (title != null) {
       //Title result
@@ -213,14 +259,30 @@ public class ImdbRestService {
   }
 
   /**
+   * Validate getPersonById
+   *
+   * @param id
+   */
+  private void getPersonByIdValidation(final String id) {
+    if (!StringUtils.hasText(id)) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"id"});
+    }
+
+    if (id.trim().length() > 25) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"id"});
+    }
+  }
+
+  /**
    * Create GetPersonByIdResponse
+   *
    * @param person
    * @return GetPersonByIdResponse
    */
-  private GetPersonByIdResponse CreateGetPersonByIdResponse(final Person person) {
+  private GetPersonByIdResponse getPersonByIdResponse(final Person person) {
     GetPersonByIdResponse response = new GetPersonByIdResponse();
     if (person != null) {
-      PersonResult personResult=new PersonResult();
+      PersonResult personResult = new PersonResult();
       personResult.setId(person.getNconst());
       personResult.setPrimaryName(person.getPrimaryName());
       personResult.setBirthYear(person.getBirthYear());

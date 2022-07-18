@@ -40,7 +40,7 @@ public class TitleService {
    * @param id
    * @return Title
    */
-  public Title findById(String id) {
+  public Title findById(final String id) {
     try {
       Optional<Title> optional = titleRepository.findById(id);
       return optional.isPresent() ? optional.get() : null;
@@ -52,10 +52,11 @@ public class TitleService {
 
   /**
    * Get Titles which are directed & written by the same person
+   *
    * @param pageable
    * @return Page<TitlePersonResult>
    */
-  public Page<TitlePersonResult> getDirectorAndWriterSamePerson(Pageable pageable) {
+  public Page<TitlePersonResult> getDirectorAndWriterSamePerson(final Pageable pageable) {
     try {
       return titleRepository.getDirectorAndWriterSamePerson(CrewTypeEnum.DIRECTOR.getId(),
           CrewTypeEnum.WRITER.getId(), pageable);

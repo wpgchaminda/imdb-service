@@ -17,6 +17,7 @@ public class CrewTypeService {
 
   /**
    * Save
+   *
    * @param crewType
    * @return CrewType
    */
@@ -31,10 +32,11 @@ public class CrewTypeService {
 
   /**
    * Find By Id
+   *
    * @param id
    * @return CrewType
    */
-  public CrewType findById(Integer id) {
+  public CrewType findById(final Integer id) {
     try {
       Optional<CrewType> optional = crewTypeRepository.findById(id);
       return optional.isPresent() ? optional.get() : null;
@@ -46,10 +48,11 @@ public class CrewTypeService {
 
   /**
    * Find By Name
+   *
    * @param name
    * @return CrewType
    */
-  public CrewType findByName(String name) {
+  public CrewType findByName(final String name) {
     try {
       return crewTypeRepository.findCrewTypeByNameIgnoreCase(name);
     } catch (Exception e) {
@@ -60,10 +63,11 @@ public class CrewTypeService {
 
   /**
    * Is Exists By Name
+   *
    * @param name
    * @return boolean
    */
-  public boolean existByName(String name) {
+  public boolean existByName(final String name) {
     try {
       return crewTypeRepository.existsByNameIgnoreCase(name);
     } catch (Exception e) {

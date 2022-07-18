@@ -17,6 +17,7 @@ public class GenreService {
 
   /**
    * Save
+   *
    * @param genre
    * @return Genre
    */
@@ -31,10 +32,11 @@ public class GenreService {
 
   /**
    * Find By Id
+   *
    * @param id
    * @return CrewType
    */
-  public Genre findById(Integer id) {
+  public Genre findById(final Integer id) {
     try {
       Optional<Genre> optional = genreRepository.findById(id);
       return optional.isPresent() ? optional.get() : null;
@@ -46,10 +48,11 @@ public class GenreService {
 
   /**
    * Find By Name
+   *
    * @param name
    * @return CrewType
    */
-  public Genre findByName(String name) {
+  public Genre findByName(final String name) {
     try {
       return genreRepository.findGenreByNameIgnoreCase(name);
     } catch (Exception e) {
@@ -60,10 +63,11 @@ public class GenreService {
 
   /**
    * Is Exists By Name
+   *
    * @param name
    * @return boolean
    */
-  public boolean existByName(String name) {
+  public boolean existByName(final String name) {
     try {
       return genreRepository.existsByNameIgnoreCase(name);
     } catch (Exception e) {

@@ -9,6 +9,7 @@ public interface GenreRepository extends CrudRepository<Genre,Integer> {
 
   /**
    * Find By Name
+   *
    * @param name
    * @return Genre
    */
@@ -16,6 +17,7 @@ public interface GenreRepository extends CrudRepository<Genre,Integer> {
 
   /**
    * Is Exists By Name
+   *
    * @param name
    * @return boolean
    */

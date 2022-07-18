@@ -17,6 +17,7 @@ public class JobService {
 
   /**
    * Save
+   *
    * @param job
    * @return Job
    */
@@ -31,10 +32,11 @@ public class JobService {
 
   /**
    * Find By Id
+   *
    * @param id
    * @return Job
    */
-  public Job findById(Integer id) {
+  public Job findById(final Integer id) {
     try {
       Optional<Job> optional = jobRepository.findById(id);
       return optional.isPresent() ? optional.get() : null;
@@ -46,10 +48,11 @@ public class JobService {
 
   /**
    * Find By Name
+   *
    * @param name
    * @return Job
    */
-  public Job findByName(String name) {
+  public Job findByName(final String name) {
     try {
       return jobRepository.findJobByNameIgnoreCase(name);
     } catch (Exception e) {
@@ -60,10 +63,11 @@ public class JobService {
 
   /**
    * Is Exists By Name
+   *
    * @param name
    * @return boolean
    */
-  public boolean existByName(String name) {
+  public boolean existByName(final String name) {
     try {
       return jobRepository.existsByNameIgnoreCase(name);
     } catch (Exception e) {

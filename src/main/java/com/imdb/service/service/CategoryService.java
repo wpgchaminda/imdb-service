@@ -17,6 +17,7 @@ public class CategoryService {
 
   /**
    * Save
+   *
    * @param category
    * @return Category
    */
@@ -31,10 +32,11 @@ public class CategoryService {
 
   /**
    * Find By Id
+   *
    * @param id
    * @return Category
    */
-  public Category findById(Integer id) {
+  public Category findById(final Integer id) {
     try {
       Optional<Category> optional = categoryRepository.findById(id);
       return optional.isPresent() ? optional.get() : null;
@@ -46,10 +48,11 @@ public class CategoryService {
 
   /**
    * Find By Name
+   *
    * @param name
    * @return Category
    */
-  public Category findByName(String name) {
+  public Category findByName(final String name) {
     try {
       return categoryRepository.findCategoryByNameIgnoreCase(name);
     } catch (Exception e) {
@@ -60,10 +63,11 @@ public class CategoryService {
 
   /**
    * Is Exists By Name
+   *
    * @param name
    * @return boolean
    */
-  public boolean existByName(String name) {
+  public boolean existByName(final String name) {
     try {
       return categoryRepository.existsByNameIgnoreCase(name);
     } catch (Exception e) {

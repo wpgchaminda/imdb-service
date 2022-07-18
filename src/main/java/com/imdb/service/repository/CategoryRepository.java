@@ -9,6 +9,7 @@ public interface CategoryRepository extends CrudRepository<Category,Integer> {
 
   /**
    * Find By Name
+   *
    * @param name
    * @return Category
    */
@@ -16,6 +17,7 @@ public interface CategoryRepository extends CrudRepository<Category,Integer> {
 
   /**
    * Is Exists By Name
+   *
    * @param name
    * @return boolean
    */
