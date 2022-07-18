@@ -5,9 +5,12 @@ import static com.imdb.service.web.api.ApiCons.API_PATH;
 
 import com.imdb.service.domain.Person;
 import com.imdb.service.domain.Title;
-import com.imdb.service.dto.TitlePersonResult;
+import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
+import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
 import com.imdb.service.service.PersonService;
 import com.imdb.service.service.TitleService;
+import com.imdb.service.web.api.dto.BothActorsPlayedTogetherResponse;
+import com.imdb.service.web.api.dto.BothActorsPlayedTogetherResult;
 import com.imdb.service.web.api.dto.DirectorAndWriterSamePersonResponse;
 import com.imdb.service.web.api.dto.DirectorAndWriterSamePersonResult;
 import com.imdb.service.web.api.dto.GetPersonByIdResponse;
@@ -78,7 +81,7 @@ public class ImdbRestService {
     getTitleByIdValidation(id);
 
     //Query results
-    Title title = titleService.findById(id);
+    Title title = titleService.findById(id.trim());
 
     //Construct response
     GetTitleByIdResponse response = getTitleByIdResponse(title);
@@ -101,7 +104,7 @@ public class ImdbRestService {
     getPersonByIdValidation(id);
 
     //Query results
-    Person person = personService.findById(id);
+    Person person = personService.findById(id.trim());
 
     //Construct response
     GetPersonByIdResponse response = getPersonByIdResponse(person);
@@ -115,25 +118,57 @@ public class ImdbRestService {
    * @param pageSize
    * @return DirectorAndWriterSamePersonResponse
    */
-  @RequestMapping(path = "/titles/directorandwritersameperson",
+  @RequestMapping(path = "/titles/director-and-writer-same-person",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
-  PagingResponseBase getDirectorAndWriterSamePerson(@RequestParam(name = "page", defaultValue = "0") int page,
-                                                    @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
+  PagingResponseBase getTitlesDirectorAndWriterSamePerson(@RequestParam(name = "page", defaultValue = "0") int page,
+                                                          @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
     //Validation
-    getDirectorAndWriterSamePersonValidate(page, pageSize);
+    getTitlesDirectorAndWriterSamePersonValidate(page, pageSize);
 
     //Pageable
     Pageable pageable = PageRequest.of(page, pageSize);
 
     //Get Query Results
-    Page<TitlePersonResult> queryResults = titleService.getDirectorAndWriterSamePerson(pageable);
+    Page<GetDirectorAndWriterSamePersonResult> queryResults = titleService.getDirectorAndWriterSamePerson(pageable);
 
     //Construct Response
     DirectorAndWriterSamePersonResponse response =
-        getDirectorAndWriterSamePersonResponse(queryResults);
+        getTitlesDirectorAndWriterSamePersonResponse(queryResults);
+    return response;
+  }
+
+  /**
+   * Get Titles which are both actors played together
+   *
+   * @param page
+   * @param pageSize
+   * @return DirectorAndWriterSamePersonResponse
+   */
+  @RequestMapping(path = "/titles/both-actors-played-together",
+      method = RequestMethod.GET,
+      produces = {MediaType.APPLICATION_JSON_VALUE})
+  @ResponseStatus(value = HttpStatus.OK)
+  public @ResponseBody
+  PagingResponseBase getTitlesBothActorsPlayedTogether(@RequestParam(name = "actor1", required = true) String actor1,
+                                                       @RequestParam(name = "actor2", required = true) String actor2,
+                                                       @RequestParam(name = "page", defaultValue = "0") int page,
+                                                       @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
+    //Validation
+    getTitlesBothActorsPlayedTogetherValidation(actor1, actor2, page, pageSize);
+
+    //Pageable
+    Pageable pageable = PageRequest.of(page, pageSize);
+
+    //Get Query Results
+    Page<GetBothActorsPlayedTogetherResult> queryResults =
+        titleService.getBothActorsPlayedTogether(actor1.trim(), actor2.trim(), pageable);
+
+    //Construct Response
+    BothActorsPlayedTogetherResponse response =
+        getTitlesBothActorsPlayedTogetherResponse(queryResults);
     return response;
   }
 
@@ -143,7 +178,7 @@ public class ImdbRestService {
    * @param page
    * @param pageSize
    */
-  private void getDirectorAndWriterSamePersonValidate(final int page, final int pageSize) {
+  private void getTitlesDirectorAndWriterSamePersonValidate(final int page, final int pageSize) {
     if (page < 0) {
       throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"page"});
     }
@@ -160,7 +195,7 @@ public class ImdbRestService {
    * @return DirectorAndWriterSamePersonResponse
    */
   private DirectorAndWriterSamePersonResponse
-  getDirectorAndWriterSamePersonResponse(final Page<TitlePersonResult> queryResults) {
+  getTitlesDirectorAndWriterSamePersonResponse(final Page<GetDirectorAndWriterSamePersonResult> queryResults) {
     DirectorAndWriterSamePersonResponse response = new DirectorAndWriterSamePersonResponse();
 
     if (queryResults.hasContent()) {
@@ -290,6 +325,72 @@ public class ImdbRestService {
       personResult.setPrimaryProfession(person.getPrimaryProfession());
       personResult.setKnownForTitles(person.getKnownForTitles());
       response.setData(personResult);
+    }
+    return response;
+  }
+
+  /**
+   * Validation getTitlesBothActorsPlayedTogether
+   *
+   * @param actor1
+   * @param actor2
+   * @param page
+   * @param pageSize
+   */
+  private void getTitlesBothActorsPlayedTogetherValidation(final String actor1,
+                                                           final String actor2,
+                                                           final int page,
+                                                           final int pageSize) {
+    if (!StringUtils.hasText(actor1)) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"actor1"});
+    }
+
+    if (actor1.trim().length() > 500) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"actor1"});
+    }
+
+    if (!StringUtils.hasText(actor2)) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"actor2"});
+    }
+
+    if (actor2.trim().length() > 500) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"actor2"});
+    }
+
+    if (page < 0) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"page"});
+    }
+
+    if (pageSize < 1 || pageSize > 100) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"pageSize"});
+    }
+  }
+
+  /**
+   * Construct getTitlesBothActorsPlayedTogether response
+   *
+   * @param queryResults
+   * @return
+   */
+  private BothActorsPlayedTogetherResponse
+  getTitlesBothActorsPlayedTogetherResponse(final Page<GetBothActorsPlayedTogetherResult> queryResults) {
+    BothActorsPlayedTogetherResponse response = new BothActorsPlayedTogetherResponse();
+
+    if (queryResults.hasContent()) {
+      response.setPage(queryResults.getNumber());
+      response.setPageSize(queryResults.getSize());
+      response.setTotal(queryResults.getTotalElements());
+      response.setTotalPages(queryResults.getTotalPages());
+
+      List<BothActorsPlayedTogetherResult> resultData = queryResults.map(x -> new BothActorsPlayedTogetherResult(
+          x.getTitle().getId(),
+          x.getTitle().getPrimaryTitle(),
+          x.getActor1().getNconst(),
+          x.getActor1().getPrimaryName(),
+          x.getActor2().getNconst(),
+          x.getActor2().getPrimaryName()))
+          .toList();
+      response.setData(resultData);
     }
     return response;
   }

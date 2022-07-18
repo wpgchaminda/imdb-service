@@ -1,8 +1,11 @@
 package com.imdb.service.service;
 
+import com.imdb.service.domain.Category;
 import com.imdb.service.domain.Title;
-import com.imdb.service.dto.TitlePersonResult;
+import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
+import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
 import com.imdb.service.enums.CrewTypeEnum;
+import com.imdb.service.repository.CategoryRepository;
 import com.imdb.service.repository.TitleRepository;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -18,6 +21,8 @@ public class TitleService {
 
   @Autowired
   private TitleRepository titleRepository;
+  @Autowired
+  private CategoryRepository categoryRepository;
 
   /**
    * Save
@@ -56,10 +61,27 @@ public class TitleService {
    * @param pageable
    * @return Page<TitlePersonResult>
    */
-  public Page<TitlePersonResult> getDirectorAndWriterSamePerson(final Pageable pageable) {
+  public Page<GetDirectorAndWriterSamePersonResult> getDirectorAndWriterSamePerson(final Pageable pageable) {
     try {
       return titleRepository.getDirectorAndWriterSamePerson(CrewTypeEnum.DIRECTOR.getId(),
           CrewTypeEnum.WRITER.getId(), pageable);
+    } catch (Exception e) {
+      log.log(Level.SEVERE, e.getMessage(), e);
+      throw e;
+    }
+  }
+
+  public Page<GetBothActorsPlayedTogetherResult> getBothActorsPlayedTogether(String actor1,
+                                                                             String actor2,
+                                                                             Pageable pageable) {
+    try {
+      Integer categoryId=-1;
+      Category category= categoryRepository.findCategoryByNameIgnoreCase("ACTOR");
+      if(category!=null){
+        categoryId=category.getId();
+      }
+
+      return titleRepository.getBothActorsPlayedTogether(actor1,actor2,categoryId,pageable);
     } catch (Exception e) {
       log.log(Level.SEVERE, e.getMessage(), e);
       throw e;

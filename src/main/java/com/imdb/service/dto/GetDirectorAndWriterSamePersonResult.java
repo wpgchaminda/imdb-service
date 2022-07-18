@@ -11,7 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class TitlePersonResult {
+public class GetDirectorAndWriterSamePersonResult {
  private Title title;
  private Person person;
 }
