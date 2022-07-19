@@ -24,6 +24,8 @@ public class TitleService {
   @Autowired
   private CategoryRepository categoryRepository;
 
+  private final String CATEGORY_ACTOR="ACTOR";
+
   /**
    * Save
    *
@@ -84,7 +86,7 @@ public class TitleService {
                                                                              Pageable pageable) {
     try {
       Integer categoryId = -1;
-      Category category = categoryRepository.findCategoryByNameIgnoreCase("ACTOR");
+      Category category = categoryRepository.findCategoryByNameIgnoreCase(CATEGORY_ACTOR);
       if (category != null) {
         categoryId = category.getId();
       }
