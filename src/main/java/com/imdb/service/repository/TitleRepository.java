@@ -1,7 +1,6 @@
 package com.imdb.service.repository;
 
 import com.imdb.service.domain.Title;
-import com.imdb.service.dto.GetBestSellingTitlesResult;
 import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
 import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
 import org.springframework.data.domain.Page;
@@ -51,16 +50,49 @@ public interface TitleRepository extends PagingAndSortingRepository<Title,String
                                                                       @Param("categoryId") Integer categoryId,
                                                                       Pageable pageable);
 
-  @Query("SELECT new com.imdb.service.dto.GetBestSellingTitlesResult(t.startYear, t.id, " +
-      "t.primaryTitle, t.averageRating, t.numVotes, MAX(t.averageRating * t.numVotes)) " +
-      "FROM Title t " +
-      "JOIN t.genres g ON lower(g.name)=lower(:genre) " +
+  /**
+   * Get best selling titles by year
+   *
+   * @param genre
+   * @param pageable
+   * @return
+   */
+  @Query(value = "SELECT t.* FROM title t " +
+      "INNER JOIN title_genre tg ON tg.title_id=t.id " +
+      "INNER JOIN genre g ON g.id=tg.genre_id AND UPPER(g.name)=UPPER(:genre) " +
+      "INNER JOIN (SELECT tt.start_year,MAX(tt.average_rating*tt.num_votes) AS rating " +
+      "            FROM title tt " +
+      "            INNER JOIN title_genre tgg ON tgg.title_id=tt.id " +
+      "            INNER JOIN genre gg ON gg.id=tgg.genre_id AND UPPER(gg.name)=UPPER(:genre) " +
+      "            WHERE " +
+      "            tt.start_year IS NOT NULL " +
+      "            AND tt.average_rating IS NOT NULL " +
+      "            AND tt.num_votes IS NOT NULL " +
+      "            GROUP BY tt.start_year) ta " +
+      "            ON t.start_year=ta.start_year AND (t.average_rating*t.num_votes)=ta.rating " +
       "WHERE " +
-      "t.averageRating IS NOT null " +
-      "AND t.numVotes IS NOT null " +
-      "AND t.startYear IS NOT null "+
-      "GROUP BY t.startYear " +
-      "ORDER BY t.startYear ")
-  Page<GetBestSellingTitlesResult> getBestSellingTitles(@Param("genre") String genre,
-                                                        Pageable pageable);
+      "t.start_year IS NOT NULL " +
+      "AND t.average_rating IS NOT NULL " +
+      "AND t.num_votes IS NOT NULL " +
+      "ORDER BY t.start_year",
+      countQuery = "SELECT COUNT(t.id) FROM title t " +
+          "INNER JOIN title_genre tg ON tg.title_id=t.id " +
+          "INNER JOIN genre g ON g.id=tg.genre_id AND UPPER(g.name)=UPPER(:genre) " +
+          "INNER JOIN (SELECT tt.start_year,MAX(tt.average_rating*tt.num_votes) AS rating " +
+          "            FROM title tt " +
+          "            INNER JOIN title_genre tgg ON tgg.title_id=tt.id " +
+          "            INNER JOIN genre gg ON gg.id=tgg.genre_id AND UPPER(gg.name)=UPPER(:genre) " +
+          "            WHERE " +
+          "            tt.start_year IS NOT NULL " +
+          "            AND tt.average_rating IS NOT NULL " +
+          "            AND tt.num_votes IS NOT NULL " +
+          "            GROUP BY tt.start_year) ta " +
+          "            ON t.start_year=ta.start_year AND (t.average_rating*t.num_votes)=ta.rating " +
+          "WHERE " +
+          "t.start_year IS NOT NULL " +
+          "AND t.average_rating IS NOT NULL " +
+          "AND t.num_votes IS NOT NULL ",
+      nativeQuery = true)
+  Page<Title> getBestSellingTitles(@Param("genre") String genre,
+                                   Pageable pageable);
 }

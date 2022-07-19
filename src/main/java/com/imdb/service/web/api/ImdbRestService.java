@@ -3,7 +3,6 @@ package com.imdb.service.web.api;
 import static com.imdb.service.web.api.ApiCons.API_PATH;
 import com.imdb.service.domain.Person;
 import com.imdb.service.domain.Title;
-import com.imdb.service.dto.GetBestSellingTitlesResult;
 import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
 import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
 import com.imdb.service.repository.TitleRepository;
@@ -229,7 +228,7 @@ public class ImdbRestService {
     Pageable pageable = PageRequest.of(page, pageSize);
 
     //Query results
-    Page<GetBestSellingTitlesResult> bestSellingTitles = titleService.getBestSellingTitles(genre,
+    Page<Title> bestSellingTitles = titleService.getBestSellingTitles(genre,
         pageable);
 
     //Response
@@ -495,7 +494,7 @@ public class ImdbRestService {
    * @return
    */
   private PagingResponse<BestSellingTitleResult>
-  getBestSellingTitlesValidationResponse(final Page<GetBestSellingTitlesResult> queryResults) {
+  getBestSellingTitlesValidationResponse(final Page<Title> queryResults) {
     PagingResponse<BestSellingTitleResult> response = new PagingResponse<>();
 
     if (queryResults.hasContent()) {
@@ -506,11 +505,11 @@ public class ImdbRestService {
       response.setTotalCount(queryResults.getTotalElements());
 
       List<BestSellingTitleResult> resultData = queryResults.map(x -> new BestSellingTitleResult(
-          x.getYear(),
-          x.getTitleId(),
+          x.getStartYear(),
+          x.getId(),
           x.getPrimaryTitle(),
-          x.getRating(),
-          x.getVotes()
+          x.getAverageRating(),
+          x.getNumVotes()
       )).toList();
       response.setData(resultData);
     }

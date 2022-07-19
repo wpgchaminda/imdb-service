@@ -2,7 +2,6 @@ package com.imdb.service.service;
 
 import com.imdb.service.domain.Category;
 import com.imdb.service.domain.Title;
-import com.imdb.service.dto.GetBestSellingTitlesResult;
 import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
 import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
 import com.imdb.service.enums.CrewTypeEnum;
@@ -102,9 +101,9 @@ public class TitleService {
    *
    * @param genre
    * @param pageable
-   * @return Page<GetBestSellingTitlesResult>
+   * @return Page<Title>
    */
-  public Page<GetBestSellingTitlesResult> getBestSellingTitles(String genre, Pageable pageable) {
+  public Page<Title> getBestSellingTitles(String genre, Pageable pageable) {
     try {
       return titleRepository.getBestSellingTitles(genre, pageable);
     } catch (Exception e) {
