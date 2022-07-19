@@ -1,6 +1,7 @@
 package com.imdb.service.repository;
 
 import com.imdb.service.domain.Title;
+import com.imdb.service.dto.GetBestSellingTitlesResult;
 import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
 import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
 import org.springframework.data.domain.Page;
@@ -49,4 +50,17 @@ public interface TitleRepository extends PagingAndSortingRepository<Title,String
                                                                       @Param("actor2") String actor2,
                                                                       @Param("categoryId") Integer categoryId,
                                                                       Pageable pageable);
+
+  @Query("SELECT new com.imdb.service.dto.GetBestSellingTitlesResult(t.startYear, t.id, " +
+      "t.primaryTitle, t.averageRating, t.numVotes, MAX(t.averageRating * t.numVotes)) " +
+      "FROM Title t " +
+      "JOIN t.genres g ON lower(g.name)=lower(:genre) " +
+      "WHERE " +
+      "t.averageRating IS NOT null " +
+      "AND t.numVotes IS NOT null " +
+      "AND t.startYear IS NOT null "+
+      "GROUP BY t.startYear " +
+      "ORDER BY t.startYear ")
+  Page<GetBestSellingTitlesResult> getBestSellingTitles(@Param("genre") String genre,
+                                                        Pageable pageable);
 }

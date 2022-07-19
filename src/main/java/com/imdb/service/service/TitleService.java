@@ -2,6 +2,7 @@ package com.imdb.service.service;
 
 import com.imdb.service.domain.Category;
 import com.imdb.service.domain.Title;
+import com.imdb.service.dto.GetBestSellingTitlesResult;
 import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
 import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
 import com.imdb.service.enums.CrewTypeEnum;
@@ -71,17 +72,41 @@ public class TitleService {
     }
   }
 
+  /**
+   * Get both actors played together
+   *
+   * @param actor1
+   * @param actor2
+   * @param pageable
+   * @return Page<GetBothActorsPlayedTogetherResult>
+   */
   public Page<GetBothActorsPlayedTogetherResult> getBothActorsPlayedTogether(String actor1,
                                                                              String actor2,
                                                                              Pageable pageable) {
     try {
-      Integer categoryId=-1;
-      Category category= categoryRepository.findCategoryByNameIgnoreCase("ACTOR");
-      if(category!=null){
-        categoryId=category.getId();
+      Integer categoryId = -1;
+      Category category = categoryRepository.findCategoryByNameIgnoreCase("ACTOR");
+      if (category != null) {
+        categoryId = category.getId();
       }
 
-      return titleRepository.getBothActorsPlayedTogether(actor1,actor2,categoryId,pageable);
+      return titleRepository.getBothActorsPlayedTogether(actor1, actor2, categoryId, pageable);
+    } catch (Exception e) {
+      log.log(Level.SEVERE, e.getMessage(), e);
+      throw e;
+    }
+  }
+
+  /**
+   * Get best selling titles per year
+   *
+   * @param genre
+   * @param pageable
+   * @return Page<GetBestSellingTitlesResult>
+   */
+  public Page<GetBestSellingTitlesResult> getBestSellingTitles(String genre, Pageable pageable) {
+    try {
+      return titleRepository.getBestSellingTitles(genre, pageable);
     } catch (Exception e) {
       log.log(Level.SEVERE, e.getMessage(), e);
       throw e;

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <springProperty scope="context" name="APPLICATION_NAME" source="spring.application.name"
+                    defaultValue="spring-boot-application"/>
+    <springProperty scope="context" name="LOGS" source="log.file.path" defaultValue="./logs"/>
+    <springProperty scope="context" name="LOGGER_LEVEl" source="log.level" defaultValue="INFO"/>
+    <springProperty scope="context" name="LOG_FILE_SIZE" source="log.file.size" defaultValue="5MB"/>
+    <springProperty scope="context" name="LOG_ARCHIVE_SIZE" source="log.archive.size" defaultValue="500MB"/>
+    <springProperty scope="context" name="LOG_ARCHIVE_FILE_COUNT" source="log.archive.file.count" defaultValue="100"/>
+    <property name="LOG_FILE_NAME" value="${APPLICATION_NAME}" />
+
+    <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable
+            </Pattern>
+        </layout>
+    </appender>
+
+    <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/${LOG_FILE_NAME}.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily and when the file reaches 10 MegaBytes -->
+            <fileNamePattern>
+                ${LOGS}/archived/%d{yyyy-MM-dd}/${LOG_FILE_NAME}-%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>${LOG_FILE_SIZE}</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <!-- total size of all archive files -->
+            <totalSizeCap>${LOG_ARCHIVE_SIZE}</totalSizeCap>
+            <!-- Number of Files to Keep -->
+            <maxHistory>${LOG_ARCHIVE_FILE_COUNT}</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <!-- LOG Root -->
+    <root level="${LOGGER_LEVEl}">
+        <appender-ref ref="RollingFile" />
+        <appender-ref ref="Console" />
+    </root>
+
+    <logger name="org.springframework.web.filter.CommonsRequestLoggingFilter">
+        <level value="DEBUG" />
+    </logger>
+</configuration>

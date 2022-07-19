@@ -1,30 +1,31 @@
 package com.imdb.service.web.api;
 
 import static com.imdb.service.web.api.ApiCons.API_PATH;
-
-
 import com.imdb.service.domain.Person;
 import com.imdb.service.domain.Title;
+import com.imdb.service.dto.GetBestSellingTitlesResult;
 import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
 import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
+import com.imdb.service.repository.TitleRepository;
 import com.imdb.service.service.PersonService;
 import com.imdb.service.service.TitleService;
-import com.imdb.service.web.api.dto.BothActorsPlayedTogetherResponse;
+import com.imdb.service.util.RequestCount;
+import com.imdb.service.util.RequestCountUtil;
+import com.imdb.service.web.api.dto.BestSellingTitleResult;
 import com.imdb.service.web.api.dto.BothActorsPlayedTogetherResult;
-import com.imdb.service.web.api.dto.DirectorAndWriterSamePersonResponse;
 import com.imdb.service.web.api.dto.DirectorAndWriterSamePersonResult;
-import com.imdb.service.web.api.dto.GetPersonByIdResponse;
-import com.imdb.service.web.api.dto.GetTitleByIdResponse;
-import com.imdb.service.web.api.dto.PagingResponseBase;
+import com.imdb.service.web.api.dto.PagingResponse;
 import com.imdb.service.web.api.dto.PersonResult;
-import com.imdb.service.web.api.dto.ResponseBase;
+import com.imdb.service.web.api.dto.Response;
 import com.imdb.service.web.api.dto.TitleCrewResult;
 import com.imdb.service.web.api.dto.TitlePrincipalResult;
 import com.imdb.service.web.api.dto.TitleResult;
 import com.imdb.service.web.exception.BadRequestException;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+@Log
 @RestController
 @RequestMapping(API_PATH +"/"+ImdbRestService.IMDB_API_PATH+"/"+ ImdbRestService.IMDB_API_VERSION)
 public class ImdbRestService {
@@ -50,6 +52,18 @@ public class ImdbRestService {
   private TitleService titleService;
   @Autowired
   private PersonService personService;
+  @Autowired
+  private RequestCountUtil requestCountUtil;
+
+
+  @Value("${imdb.api.paginations.max.page.size}")
+  private int maxPageSize;
+  @Value("${imdb.api.max.name.length}")
+  private int maxNameLength;
+  @Value("${imdb.api.max.id.length}")
+  private int maxIdLength;
+  @Value("${imdb.api.max.genre.length}")
+  private int maxGenreLength;
 
   /**
    * Echo Service to check the the API is up and running
@@ -59,6 +73,7 @@ public class ImdbRestService {
   @RequestMapping(path = "/echo",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RequestCount
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
   String echo() {
@@ -74,9 +89,10 @@ public class ImdbRestService {
   @RequestMapping(path = "/titles/{id}",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RequestCount
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
-  ResponseBase getTitleById(@PathVariable String id) {
+  Response<TitleResult> getTitleById(@PathVariable String id) {
     //Validation
     getTitleByIdValidation(id);
 
@@ -84,7 +100,7 @@ public class ImdbRestService {
     Title title = titleService.findById(id.trim());
 
     //Construct response
-    GetTitleByIdResponse response = getTitleByIdResponse(title);
+    Response<TitleResult> response = getTitleByIdResponse(title);
     return response;
   }
 
@@ -97,9 +113,10 @@ public class ImdbRestService {
   @RequestMapping(path = "/persons/{id}",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RequestCount
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
-  ResponseBase getPersonById(@PathVariable String id) {
+  Response<PersonResult> getPersonById(@PathVariable String id) {
     //Validation
     getPersonByIdValidation(id);
 
@@ -107,7 +124,7 @@ public class ImdbRestService {
     Person person = personService.findById(id.trim());
 
     //Construct response
-    GetPersonByIdResponse response = getPersonByIdResponse(person);
+    Response<PersonResult> response = getPersonByIdResponse(person);
     return response;
   }
 
@@ -121,10 +138,12 @@ public class ImdbRestService {
   @RequestMapping(path = "/titles/director-and-writer-same-person",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RequestCount
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
-  PagingResponseBase getTitlesDirectorAndWriterSamePerson(@RequestParam(name = "page", defaultValue = "0") int page,
-                                                          @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
+  PagingResponse<DirectorAndWriterSamePersonResult> getTitlesDirectorAndWriterSamePerson(
+      @RequestParam(name = "page", defaultValue = "0") int page,
+      @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
     //Validation
     getTitlesDirectorAndWriterSamePersonValidate(page, pageSize);
 
@@ -135,7 +154,7 @@ public class ImdbRestService {
     Page<GetDirectorAndWriterSamePersonResult> queryResults = titleService.getDirectorAndWriterSamePerson(pageable);
 
     //Construct Response
-    DirectorAndWriterSamePersonResponse response =
+    PagingResponse<DirectorAndWriterSamePersonResult> response =
         getTitlesDirectorAndWriterSamePersonResponse(queryResults);
     return response;
   }
@@ -150,12 +169,14 @@ public class ImdbRestService {
   @RequestMapping(path = "/titles/both-actors-played-together",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RequestCount
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
-  PagingResponseBase getTitlesBothActorsPlayedTogether(@RequestParam(name = "actor1", required = true) String actor1,
-                                                       @RequestParam(name = "actor2", required = true) String actor2,
-                                                       @RequestParam(name = "page", defaultValue = "0") int page,
-                                                       @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
+  PagingResponse<BothActorsPlayedTogetherResult> getTitlesBothActorsPlayedTogether(
+      @RequestParam(name = "actor1", required = true) String actor1,
+      @RequestParam(name = "actor2", required = true) String actor2,
+      @RequestParam(name = "page", defaultValue = "0") int page,
+      @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
     //Validation
     getTitlesBothActorsPlayedTogetherValidation(actor1, actor2, page, pageSize);
 
@@ -167,52 +188,53 @@ public class ImdbRestService {
         titleService.getBothActorsPlayedTogether(actor1.trim(), actor2.trim(), pageable);
 
     //Construct Response
-    BothActorsPlayedTogetherResponse response =
+    PagingResponse<BothActorsPlayedTogetherResult> response =
         getTitlesBothActorsPlayedTogetherResponse(queryResults);
     return response;
   }
 
   /**
-   * Validate getDirectorAndWriterSamePerson
+   * Get Request Count
    *
-   * @param page
-   * @param pageSize
+   * @return String
    */
-  private void getTitlesDirectorAndWriterSamePersonValidate(final int page, final int pageSize) {
-    if (page < 0) {
-      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"page"});
-    }
-
-    if (pageSize < 1 || pageSize > 100) {
-      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"pageSize"});
-    }
+  @RequestMapping(path = "/request-count",
+      method = RequestMethod.GET,
+      produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RequestCount
+  @ResponseStatus(value = HttpStatus.OK)
+  public @ResponseBody
+  String getRequestCount() {
+    return String.valueOf(requestCountUtil.getRequestCount());
   }
 
   /**
-   * Create GetDirectorAndWriterSamePersonResponse
+   * Get best selling Titles in each year
    *
-   * @param queryResults
-   * @return DirectorAndWriterSamePersonResponse
+   * @param genre
+   * @return GetTitleByIdResponse
    */
-  private DirectorAndWriterSamePersonResponse
-  getTitlesDirectorAndWriterSamePersonResponse(final Page<GetDirectorAndWriterSamePersonResult> queryResults) {
-    DirectorAndWriterSamePersonResponse response = new DirectorAndWriterSamePersonResponse();
+  @RequestMapping(path = "/titles/best-selling-titles",
+      method = RequestMethod.GET,
+      produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RequestCount
+  @ResponseStatus(value = HttpStatus.OK)
+  public @ResponseBody
+  PagingResponse<BestSellingTitleResult> getBestSellingTitles(@RequestParam(name = "genre", required = true) String genre,
+                                                              @RequestParam(name = "page", defaultValue = "0") int page,
+                                                              @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
+    //Validation
+    getBestSellingTitlesValidation(genre, page, pageSize);
 
-    if (queryResults.hasContent()) {
-      response.setPage(queryResults.getNumber());
-      response.setPageSize(queryResults.getSize());
-      response.setTotal(queryResults.getTotalElements());
-      response.setTotalPages(queryResults.getTotalPages());
+    Pageable pageable = PageRequest.of(page, pageSize);
 
-      List<DirectorAndWriterSamePersonResult> resultData = queryResults.map(x -> new DirectorAndWriterSamePersonResult(
-          x.getTitle().getId(),
-          x.getTitle().getPrimaryTitle(),
-          x.getPerson().getNconst(),
-          x.getPerson().getPrimaryName(),
-          x.getPerson().getDeathYear() == null))
-          .toList();
-      response.setData(resultData);
-    }
+    //Query results
+    Page<GetBestSellingTitlesResult> bestSellingTitles = titleService.getBestSellingTitles(genre,
+        pageable);
+
+    //Response
+    PagingResponse<BestSellingTitleResult> response =
+        getBestSellingTitlesValidationResponse(bestSellingTitles);
     return response;
   }
 
@@ -226,7 +248,7 @@ public class ImdbRestService {
       throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"id"});
     }
 
-    if (id.trim().length() > 25) {
+    if (id.trim().length() > maxIdLength) {
       throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"id"});
     }
   }
@@ -235,10 +257,10 @@ public class ImdbRestService {
    * Create GetTitleByIdResponse
    *
    * @param title
-   * @return GetTitleByIdResponse
+   * @return Response<TitleResult>
    */
-  private GetTitleByIdResponse getTitleByIdResponse(final Title title) {
-    GetTitleByIdResponse response = new GetTitleByIdResponse();
+  private Response<TitleResult> getTitleByIdResponse(final Title title) {
+    Response<TitleResult> response = new Response<>();
     if (title != null) {
       //Title result
       TitleResult titleResult = new TitleResult();
@@ -303,7 +325,7 @@ public class ImdbRestService {
       throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"id"});
     }
 
-    if (id.trim().length() > 25) {
+    if (id.trim().length() > maxIdLength) {
       throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"id"});
     }
   }
@@ -312,10 +334,10 @@ public class ImdbRestService {
    * Create GetPersonByIdResponse
    *
    * @param person
-   * @return GetPersonByIdResponse
+   * @return Response<PersonResult>
    */
-  private GetPersonByIdResponse getPersonByIdResponse(final Person person) {
-    GetPersonByIdResponse response = new GetPersonByIdResponse();
+  private Response<PersonResult> getPersonByIdResponse(final Person person) {
+    Response<PersonResult> response = new Response<>();
     if (person != null) {
       PersonResult personResult = new PersonResult();
       personResult.setId(person.getNconst());
@@ -325,6 +347,51 @@ public class ImdbRestService {
       personResult.setPrimaryProfession(person.getPrimaryProfession());
       personResult.setKnownForTitles(person.getKnownForTitles());
       response.setData(personResult);
+    }
+    return response;
+  }
+
+  /**
+   * Validate getDirectorAndWriterSamePerson
+   *
+   * @param page
+   * @param pageSize
+   */
+  private void getTitlesDirectorAndWriterSamePersonValidate(final int page, final int pageSize) {
+    if (page < 0) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"page"});
+    }
+
+    if (pageSize < 1 || pageSize > maxPageSize) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"pageSize"});
+    }
+  }
+
+  /**
+   * Create GetDirectorAndWriterSamePersonResponse
+   *
+   * @param queryResults
+   * @return PagingResponse<DirectorAndWriterSamePersonResult>
+   */
+  private PagingResponse<DirectorAndWriterSamePersonResult>
+  getTitlesDirectorAndWriterSamePersonResponse(final Page<GetDirectorAndWriterSamePersonResult> queryResults) {
+    PagingResponse<DirectorAndWriterSamePersonResult> response = new PagingResponse<>();
+
+    if (queryResults.hasContent()) {
+      response.setPage(queryResults.getNumber());
+      response.setPageSize(queryResults.getSize());
+      response.setTotalPages(queryResults.getTotalPages());
+      response.setCount(queryResults.getNumberOfElements());
+      response.setTotalCount(queryResults.getTotalElements());
+
+      List<DirectorAndWriterSamePersonResult> resultData = queryResults.map(x -> new DirectorAndWriterSamePersonResult(
+          x.getTitle().getId(),
+          x.getTitle().getPrimaryTitle(),
+          x.getPerson().getNconst(),
+          x.getPerson().getPrimaryName(),
+          x.getPerson().getDeathYear() == null))
+          .toList();
+      response.setData(resultData);
     }
     return response;
   }
@@ -345,7 +412,7 @@ public class ImdbRestService {
       throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"actor1"});
     }
 
-    if (actor1.trim().length() > 500) {
+    if (actor1.trim().length() > maxNameLength) {
       throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"actor1"});
     }
 
@@ -353,7 +420,7 @@ public class ImdbRestService {
       throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"actor2"});
     }
 
-    if (actor2.trim().length() > 500) {
+    if (actor2.trim().length() > maxNameLength) {
       throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"actor2"});
     }
 
@@ -361,7 +428,7 @@ public class ImdbRestService {
       throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"page"});
     }
 
-    if (pageSize < 1 || pageSize > 100) {
+    if (pageSize < 1 || pageSize > maxPageSize) {
       throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"pageSize"});
     }
   }
@@ -370,17 +437,18 @@ public class ImdbRestService {
    * Construct getTitlesBothActorsPlayedTogether response
    *
    * @param queryResults
-   * @return
+   * @return PagingResponse<BothActorsPlayedTogetherResult>
    */
-  private BothActorsPlayedTogetherResponse
+  private PagingResponse<BothActorsPlayedTogetherResult>
   getTitlesBothActorsPlayedTogetherResponse(final Page<GetBothActorsPlayedTogetherResult> queryResults) {
-    BothActorsPlayedTogetherResponse response = new BothActorsPlayedTogetherResponse();
+    PagingResponse<BothActorsPlayedTogetherResult> response = new PagingResponse<>();
 
     if (queryResults.hasContent()) {
       response.setPage(queryResults.getNumber());
       response.setPageSize(queryResults.getSize());
-      response.setTotal(queryResults.getTotalElements());
       response.setTotalPages(queryResults.getTotalPages());
+      response.setCount(queryResults.getNumberOfElements());
+      response.setTotalCount(queryResults.getTotalElements());
 
       List<BothActorsPlayedTogetherResult> resultData = queryResults.map(x -> new BothActorsPlayedTogetherResult(
           x.getTitle().getId(),
@@ -390,6 +458,60 @@ public class ImdbRestService {
           x.getActor2().getNconst(),
           x.getActor2().getPrimaryName()))
           .toList();
+      response.setData(resultData);
+    }
+    return response;
+  }
+
+  /**
+   * Validate getBestSellingTitles
+   *
+   * @param genre
+   * @param page
+   * @param pageSize
+   */
+  private void getBestSellingTitlesValidation(final String genre, int page, int pageSize) {
+    if (!StringUtils.hasText(genre)) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"genre"});
+    }
+
+    if (genre.trim().length() > maxGenreLength) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"genre"});
+    }
+
+    if (page < 0) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"page"});
+    }
+
+    if (pageSize < 1 || pageSize > maxPageSize) {
+      throw new BadRequestException("imdb.service.error.input.parameter.invalid", new String[] {"pageSize"});
+    }
+  }
+
+  /**
+   * Create getBestSellingTitlesValidationResponse
+   *
+   * @param queryResults
+   * @return
+   */
+  private PagingResponse<BestSellingTitleResult>
+  getBestSellingTitlesValidationResponse(final Page<GetBestSellingTitlesResult> queryResults) {
+    PagingResponse<BestSellingTitleResult> response = new PagingResponse<>();
+
+    if (queryResults.hasContent()) {
+      response.setPage(queryResults.getNumber());
+      response.setPageSize(queryResults.getSize());
+      response.setTotalPages(queryResults.getTotalPages());
+      response.setCount(queryResults.getNumberOfElements());
+      response.setTotalCount(queryResults.getTotalElements());
+
+      List<BestSellingTitleResult> resultData = queryResults.map(x -> new BestSellingTitleResult(
+          x.getYear(),
+          x.getTitleId(),
+          x.getPrimaryTitle(),
+          x.getRating(),
+          x.getVotes()
+      )).toList();
       response.setData(resultData);
     }
     return response;
