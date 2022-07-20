@@ -99,6 +99,7 @@ public class ImdbRestService {
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
   Response<TitleResult> getTitleById(@PathVariable String id) {
+
     //Validation
     getTitleByIdValidation(id);
 
@@ -124,6 +125,7 @@ public class ImdbRestService {
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
   Response<PersonResult> getPersonById(@PathVariable String id) {
+
     //Validation
     getPersonByIdValidation(id);
 
@@ -152,6 +154,7 @@ public class ImdbRestService {
   PagingResponse<DirectorAndWriterSamePersonResult> getTitlesDirectorAndWriterSamePerson(
       @RequestParam(name = "page", defaultValue = "0") int page,
       @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
+
     //Validation
     getTitlesDirectorAndWriterSamePersonValidate(page, pageSize);
 
@@ -186,6 +189,7 @@ public class ImdbRestService {
       @RequestParam(name = "actor2", required = true) String actor2,
       @RequestParam(name = "page", defaultValue = "0") int page,
       @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
+
     //Validation
     getTitlesBothActorsPlayedTogetherValidation(actor1, actor2, page, pageSize);
 
@@ -215,9 +219,11 @@ public class ImdbRestService {
   @RequestCount
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
-  PagingResponse<BestSellingTitleResult> getBestSellingTitles(@RequestParam(name = "genre", required = true) String genre,
-                                                              @RequestParam(name = "page", defaultValue = "0") int page,
-                                                              @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
+  PagingResponse<BestSellingTitleResult> getBestSellingTitles(
+      @RequestParam(name = "genre", required = true) String genre,
+      @RequestParam(name = "page", defaultValue = "0") int page,
+      @RequestParam(name = "pagesize", defaultValue = "10") int pageSize) {
+
     //Validation
     getBestSellingTitlesValidation(genre, page, pageSize);
 
