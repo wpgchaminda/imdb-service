@@ -11,7 +11,8 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class GetDirectorAndWriterSamePersonResult {
+public class GetBothActorsPlayedTogetherDto {
  private Title title;
- private Person person;
+ private Person actor1;
+ private Person actor2;
 }

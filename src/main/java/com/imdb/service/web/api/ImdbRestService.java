@@ -3,8 +3,8 @@ package com.imdb.service.web.api;
 import static com.imdb.service.web.api.ApiCons.API_PATH;
 import com.imdb.service.domain.Person;
 import com.imdb.service.domain.Title;
-import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
-import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
+import com.imdb.service.dto.GetBothActorsPlayedTogetherDto;
+import com.imdb.service.dto.GetDirectorAndWriterSamePersonDto;
 import com.imdb.service.service.PersonService;
 import com.imdb.service.service.TitleService;
 import com.imdb.service.util.RequestCount;
@@ -162,7 +162,7 @@ public class ImdbRestService {
     Pageable pageable = PageRequest.of(page, pageSize);
 
     //Get Query Results
-    Page<GetDirectorAndWriterSamePersonResult> queryResults = titleService.getDirectorAndWriterSamePerson(pageable);
+    Page<GetDirectorAndWriterSamePersonDto> queryResults = titleService.getDirectorAndWriterSamePerson(pageable);
 
     //Construct Response
     PagingResponse<DirectorAndWriterSamePersonResult> response =
@@ -197,7 +197,7 @@ public class ImdbRestService {
     Pageable pageable = PageRequest.of(page, pageSize);
 
     //Get Query Results
-    Page<GetBothActorsPlayedTogetherResult> queryResults =
+    Page<GetBothActorsPlayedTogetherDto> queryResults =
         titleService.getBothActorsPlayedTogether(actor1.trim(), actor2.trim(), pageable);
 
     //Construct Response
@@ -391,7 +391,7 @@ public class ImdbRestService {
    * @return PagingResponse<DirectorAndWriterSamePersonResult>
    */
   private PagingResponse<DirectorAndWriterSamePersonResult>
-  getTitlesDirectorAndWriterSamePersonResponse(final Page<GetDirectorAndWriterSamePersonResult> queryResults) {
+  getTitlesDirectorAndWriterSamePersonResponse(final Page<GetDirectorAndWriterSamePersonDto> queryResults) {
     PagingResponse<DirectorAndWriterSamePersonResult> response = new PagingResponse<>();
 
     if (queryResults.hasContent()) {
@@ -457,7 +457,7 @@ public class ImdbRestService {
    * @return PagingResponse<BothActorsPlayedTogetherResult>
    */
   private PagingResponse<BothActorsPlayedTogetherResult>
-  getTitlesBothActorsPlayedTogetherResponse(final Page<GetBothActorsPlayedTogetherResult> queryResults) {
+  getTitlesBothActorsPlayedTogetherResponse(final Page<GetBothActorsPlayedTogetherDto> queryResults) {
     PagingResponse<BothActorsPlayedTogetherResult> response = new PagingResponse<>();
 
     if (queryResults.hasContent()) {

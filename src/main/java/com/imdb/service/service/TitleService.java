@@ -2,8 +2,8 @@ package com.imdb.service.service;
 
 import com.imdb.service.domain.Category;
 import com.imdb.service.domain.Title;
-import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
-import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
+import com.imdb.service.dto.GetBothActorsPlayedTogetherDto;
+import com.imdb.service.dto.GetDirectorAndWriterSamePersonDto;
 import com.imdb.service.enums.CrewTypeEnum;
 import com.imdb.service.repository.CategoryRepository;
 import com.imdb.service.repository.TitleRepository;
@@ -63,7 +63,7 @@ public class TitleService {
    * @param pageable
    * @return Page<TitlePersonResult>
    */
-  public Page<GetDirectorAndWriterSamePersonResult> getDirectorAndWriterSamePerson(final Pageable pageable) {
+  public Page<GetDirectorAndWriterSamePersonDto> getDirectorAndWriterSamePerson(final Pageable pageable) {
     try {
       return titleRepository.getDirectorAndWriterSamePerson(CrewTypeEnum.DIRECTOR.getId(),
           CrewTypeEnum.WRITER.getId(), pageable);
@@ -81,9 +81,9 @@ public class TitleService {
    * @param pageable
    * @return Page<GetBothActorsPlayedTogetherResult>
    */
-  public Page<GetBothActorsPlayedTogetherResult> getBothActorsPlayedTogether(String actor1,
-                                                                             String actor2,
-                                                                             Pageable pageable) {
+  public Page<GetBothActorsPlayedTogetherDto> getBothActorsPlayedTogether(String actor1,
+                                                                          String actor2,
+                                                                          Pageable pageable) {
     try {
       Integer categoryId = -1;
       Category category = categoryRepository.findCategoryByNameIgnoreCase(CATEGORY_ACTOR);

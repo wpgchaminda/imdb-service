@@ -1,8 +1,8 @@
 package com.imdb.service.repository;
 
 import com.imdb.service.domain.Title;
-import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
-import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
+import com.imdb.service.dto.GetBothActorsPlayedTogetherDto;
+import com.imdb.service.dto.GetDirectorAndWriterSamePersonDto;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -28,9 +28,9 @@ public interface TitleRepository extends PagingAndSortingRepository<Title,String
       "WHERE " +
       "tc1.person.nconst = tc2.person.nconst " +
       "AND p.nconst = tc1.person.nconst ")
-  Page<GetDirectorAndWriterSamePersonResult> getDirectorAndWriterSamePerson(@Param("directorId") Integer directorId,
-                                                                            @Param("writerId") Integer writerId,
-                                                                            Pageable pageable);
+  Page<GetDirectorAndWriterSamePersonDto> getDirectorAndWriterSamePerson(@Param("directorId") Integer directorId,
+                                                                         @Param("writerId") Integer writerId,
+                                                                         Pageable pageable);
 
   /**
    * Get BothActorsPlayedTogether
@@ -45,10 +45,10 @@ public interface TitleRepository extends PagingAndSortingRepository<Title,String
       "FROM Title t " +
       "JOIN t.titlePrincipals tp1 ON tp1.category.id = :categoryId AND lower(tp1.person.primaryName)=lower(:actor1) " +
       "JOIN t.titlePrincipals tp2 ON tp2.category.id = :categoryId AND lower(tp2.person.primaryName)=lower(:actor2) ")
-  Page<GetBothActorsPlayedTogetherResult> getBothActorsPlayedTogether(@Param("actor1") String actor1,
-                                                                      @Param("actor2") String actor2,
-                                                                      @Param("categoryId") Integer categoryId,
-                                                                      Pageable pageable);
+  Page<GetBothActorsPlayedTogetherDto> getBothActorsPlayedTogether(@Param("actor1") String actor1,
+                                                                   @Param("actor2") String actor2,
+                                                                   @Param("categoryId") Integer categoryId,
+                                                                   Pageable pageable);
 
   /**
    * Get best selling titles by year
