@@ -5,7 +5,6 @@ import com.imdb.service.domain.Person;
 import com.imdb.service.domain.Title;
 import com.imdb.service.dto.GetBothActorsPlayedTogetherResult;
 import com.imdb.service.dto.GetDirectorAndWriterSamePersonResult;
-import com.imdb.service.repository.TitleRepository;
 import com.imdb.service.service.PersonService;
 import com.imdb.service.service.TitleService;
 import com.imdb.service.util.RequestCount;
@@ -20,6 +19,9 @@ import com.imdb.service.web.api.dto.TitleCrewResult;
 import com.imdb.service.web.api.dto.TitlePrincipalResult;
 import com.imdb.service.web.api.dto.TitleResult;
 import com.imdb.service.web.exception.BadRequestException;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.extern.java.Log;
@@ -42,10 +44,13 @@ import org.springframework.web.bind.annotation.RestController;
 @Log
 @RestController
 @RequestMapping(API_PATH +"/"+ImdbRestService.IMDB_API_PATH+"/"+ ImdbRestService.IMDB_API_VERSION)
+@Api(value = "", tags = {"IMDB-Service"})
+@Tag(name = "IMDB-Service",
+     description = "Provide RESTful APIs to retrieve data from the IMDB Datasets")
 public class ImdbRestService {
 
   public static final String IMDB_API_PATH = "imdbapi";
-  public static final String IMDB_API_VERSION = "1";
+  public static final String IMDB_API_VERSION = "v1";
 
   @Autowired
   private TitleService titleService;
@@ -69,6 +74,7 @@ public class ImdbRestService {
    *
    * @return String
    */
+  @ApiOperation("Echo API to check the service is up and running")
   @RequestMapping(path = "/echo",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -85,6 +91,7 @@ public class ImdbRestService {
    * @param id
    * @return GetTitleByIdResponse
    */
+  @ApiOperation("Get Title by ID")
   @RequestMapping(path = "/titles/{id}",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -109,6 +116,7 @@ public class ImdbRestService {
    * @param id
    * @return GetTitleByIdResponse
    */
+  @ApiOperation("Get Person by ID")
   @RequestMapping(path = "/persons/{id}",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -134,6 +142,7 @@ public class ImdbRestService {
    * @param pageSize
    * @return DirectorAndWriterSamePersonResponse
    */
+  @ApiOperation("Get Titles which are directed & written by the same person")
   @RequestMapping(path = "/titles/director-and-writer-same-person",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -165,6 +174,7 @@ public class ImdbRestService {
    * @param pageSize
    * @return DirectorAndWriterSamePersonResponse
    */
+  @ApiOperation("Get Titles which are both actors played together")
   @RequestMapping(path = "/titles/both-actors-played-together",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -193,26 +203,12 @@ public class ImdbRestService {
   }
 
   /**
-   * Get Request Count
-   *
-   * @return String
-   */
-  @RequestMapping(path = "/request-count",
-      method = RequestMethod.GET,
-      produces = {MediaType.APPLICATION_JSON_VALUE})
-  @RequestCount
-  @ResponseStatus(value = HttpStatus.OK)
-  public @ResponseBody
-  String getRequestCount() {
-    return String.valueOf(requestCountUtil.getRequestCount());
-  }
-
-  /**
    * Get best selling Titles in each year
    *
    * @param genre
    * @return GetTitleByIdResponse
    */
+  @ApiOperation("Get best selling Titles in each year")
   @RequestMapping(path = "/titles/best-selling-titles",
       method = RequestMethod.GET,
       produces = {MediaType.APPLICATION_JSON_VALUE})
@@ -235,6 +231,22 @@ public class ImdbRestService {
     PagingResponse<BestSellingTitleResult> response =
         getBestSellingTitlesValidationResponse(bestSellingTitles);
     return response;
+  }
+
+  /**
+   * Get Request Count
+   *
+   * @return String
+   */
+  @ApiOperation("Get Request Count")
+  @RequestMapping(path = "/request-count",
+      method = RequestMethod.GET,
+      produces = {MediaType.APPLICATION_JSON_VALUE})
+  @RequestCount
+  @ResponseStatus(value = HttpStatus.OK)
+  public @ResponseBody
+  String getRequestCount() {
+    return String.valueOf(requestCountUtil.getRequestCount());
   }
 
   /**
