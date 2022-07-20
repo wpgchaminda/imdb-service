@@ -21,7 +21,7 @@ public interface TitleRepository extends PagingAndSortingRepository<Title,String
    * @param pageable
    * @return Page<TitlePersonResult>
    */
-  @Query("SELECT new com.imdb.service.dto.GetDirectorAndWriterSamePersonResult(t,p) " +
+  @Query("SELECT new com.imdb.service.dto.GetDirectorAndWriterSamePersonDto(t,p) " +
       "FROM Title t, Person p " +
       "JOIN t.titleCrews tc1 ON tc1.crewType.id = :directorId " +
       "JOIN t.titleCrews tc2 ON tc2.crewType.id = :writerId " +
@@ -41,7 +41,7 @@ public interface TitleRepository extends PagingAndSortingRepository<Title,String
    * @param pageable
    * @return
    */
-  @Query("SELECT new com.imdb.service.dto.GetBothActorsPlayedTogetherResult(t,tp1.person,tp2.person) " +
+  @Query("SELECT new com.imdb.service.dto.GetBothActorsPlayedTogetherDto(t,tp1.person,tp2.person) " +
       "FROM Title t " +
       "JOIN t.titlePrincipals tp1 ON tp1.category.id = :categoryId AND lower(tp1.person.primaryName)=lower(:actor1) " +
       "JOIN t.titlePrincipals tp2 ON tp2.category.id = :categoryId AND lower(tp2.person.primaryName)=lower(:actor2) ")

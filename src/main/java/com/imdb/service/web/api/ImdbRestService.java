@@ -14,6 +14,7 @@ import com.imdb.service.web.api.dto.BothActorsPlayedTogetherResult;
 import com.imdb.service.web.api.dto.DirectorAndWriterSamePersonResult;
 import com.imdb.service.web.api.dto.PagingResponse;
 import com.imdb.service.web.api.dto.PersonResult;
+import com.imdb.service.web.api.dto.RequestCountResult;
 import com.imdb.service.web.api.dto.Response;
 import com.imdb.service.web.api.dto.TitleCrewResult;
 import com.imdb.service.web.api.dto.TitlePrincipalResult;
@@ -251,8 +252,11 @@ public class ImdbRestService {
   @RequestCount
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
-  String getRequestCount() {
-    return String.valueOf(requestCountUtil.getRequestCount());
+  Response<RequestCountResult> getRequestCount() {
+    Response<RequestCountResult> response=new Response<>();
+    RequestCountResult requestCountResult=new RequestCountResult(requestCountUtil.getRequestCount());
+    response.setData(requestCountResult);
+    return response;
   }
 
   /**
