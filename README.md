@@ -1,2 +1,2 @@
 # imdb-service
-IMDB Datasets assignment
+IMDB Datasets Service
