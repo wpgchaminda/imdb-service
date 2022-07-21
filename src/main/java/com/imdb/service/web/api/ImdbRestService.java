@@ -60,7 +60,6 @@ public class ImdbRestService {
   @Autowired
   private RequestCountUtil requestCountUtil;
 
-
   @Value("${imdb.api.paginations.max.page.size}")
   private int maxPageSize;
   @Value("${imdb.api.max.name.length}")

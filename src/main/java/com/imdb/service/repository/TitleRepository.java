@@ -43,8 +43,8 @@ public interface TitleRepository extends PagingAndSortingRepository<Title,String
    */
   @Query("SELECT new com.imdb.service.dto.GetBothActorsPlayedTogetherDto(t,tp1.person,tp2.person) " +
       "FROM Title t " +
-      "JOIN t.titlePrincipals tp1 ON tp1.category.id = :categoryId AND lower(tp1.person.primaryName)=lower(:actor1) " +
-      "JOIN t.titlePrincipals tp2 ON tp2.category.id = :categoryId AND lower(tp2.person.primaryName)=lower(:actor2) ")
+      "JOIN t.titlePrincipals tp1 ON tp1.category.id = :categoryId AND UPPER(tp1.person.primaryName)=UPPER(:actor1) " +
+      "JOIN t.titlePrincipals tp2 ON tp2.category.id = :categoryId AND UPPER(tp2.person.primaryName)=UPPER(:actor2) ")
   Page<GetBothActorsPlayedTogetherDto> getBothActorsPlayedTogether(@Param("actor1") String actor1,
                                                                    @Param("actor2") String actor2,
                                                                    @Param("categoryId") Integer categoryId,
@@ -60,7 +60,7 @@ public interface TitleRepository extends PagingAndSortingRepository<Title,String
   @Query(value = "SELECT t.* FROM title t " +
       "INNER JOIN title_genre tg ON tg.title_id=t.id " +
       "INNER JOIN genre g ON g.id=tg.genre_id AND UPPER(g.name)=UPPER(:genre) " +
-      "INNER JOIN (SELECT tt.start_year,MAX(tt.average_rating*tt.num_votes) AS rating " +
+      "INNER JOIN (SELECT tt.start_year,MAX(tt.average_rating*tt.num_votes) AS rank " +
       "            FROM title tt " +
       "            INNER JOIN title_genre tgg ON tgg.title_id=tt.id " +
       "            INNER JOIN genre gg ON gg.id=tgg.genre_id AND UPPER(gg.name)=UPPER(:genre) " +
@@ -69,7 +69,7 @@ public interface TitleRepository extends PagingAndSortingRepository<Title,String
       "            AND tt.average_rating IS NOT NULL " +
       "            AND tt.num_votes IS NOT NULL " +
       "            GROUP BY tt.start_year) ta " +
-      "            ON t.start_year=ta.start_year AND (t.average_rating*t.num_votes)=ta.rating " +
+      "            ON t.start_year=ta.start_year AND (t.average_rating*t.num_votes)=ta.rank " +
       "WHERE " +
       "t.start_year IS NOT NULL " +
       "AND t.average_rating IS NOT NULL " +

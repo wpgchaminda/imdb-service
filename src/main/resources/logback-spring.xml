@@ -30,9 +30,9 @@
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>${LOG_FILE_SIZE}</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
-            <!-- total size of all archive files -->
+            <!-- Total size of all archive files -->
             <totalSizeCap>${LOG_ARCHIVE_SIZE}</totalSizeCap>
-            <!-- Number of Files to Keep -->
+            <!-- Number of files to keep in archive -->
             <maxHistory>${LOG_ARCHIVE_FILE_COUNT}</maxHistory>
         </rollingPolicy>
     </appender>
