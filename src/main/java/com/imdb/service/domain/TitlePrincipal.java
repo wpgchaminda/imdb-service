@@ -6,6 +6,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -19,7 +20,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "title_principal")
+@Table(name = "title_principal",
+    indexes = {
+        @Index(name = "index_title_principal_id",  columnList="id ASC", unique = true),
+        @Index(name = "index_title_principal_title_id", columnList="title_id ASC", unique = false),
+        @Index(name = "index_title_principal_person_id", columnList="person_id ASC", unique = false),
+        @Index(name = "index_title_principal_category_id", columnList="category_id ASC", unique = false)})
 public class TitlePrincipal implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

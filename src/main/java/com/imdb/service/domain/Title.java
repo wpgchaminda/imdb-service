@@ -8,6 +8,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
@@ -24,7 +25,11 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "title")
+@Table(name = "title",
+    indexes = {
+        @Index(name = "index_title_id",  columnList="id ASC", unique = true),
+        @Index(name = "index_title_primary_title", columnList="primary_title ASC", unique = false),
+        @Index(name = "index_title_start_year", columnList="start_year ASC", unique = false)})
 public class Title implements Serializable {
   @Id
   @Column(name = "id")

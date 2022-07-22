@@ -4,6 +4,7 @@ import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -17,7 +18,10 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "person")
+@Table(name = "person",
+    indexes = {
+        @Index(name = "index_person_id",  columnList="nconst ASC", unique = true),
+        @Index(name = "index_person_primary_name", columnList="primary_name ASC", unique = false)})
 public class Person implements Serializable {
   @Id
   @Column(name = "nconst")
