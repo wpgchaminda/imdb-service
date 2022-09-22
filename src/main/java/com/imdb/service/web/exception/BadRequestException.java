@@ -3,6 +3,9 @@ package com.imdb.service.web.exception;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+/**
+ * BadRequestException type.
+ */
 @ResponseStatus(value = HttpStatus.BAD_REQUEST)
 public class BadRequestException extends RuntimeException {
   private String[] args;
@@ -17,12 +20,12 @@ public class BadRequestException extends RuntimeException {
 
   public BadRequestException(String message, String[] args) {
     super(message);
-    this.args=args;
+    this.args = args;
   }
 
   public BadRequestException(String message, Throwable cause, String[] args) {
     super(message, cause);
-    this.args=args;
+    this.args = args;
   }
 
   public BadRequestException(Throwable cause) {
@@ -32,7 +35,7 @@ public class BadRequestException extends RuntimeException {
   protected BadRequestException(String message, Throwable cause, boolean enableSuppression,
                                 boolean writableStackTrace, String[] args) {
     super(message, cause, enableSuppression, writableStackTrace);
-    this.args=args;
+    this.args = args;
   }
 
   public String[] getArgs() {

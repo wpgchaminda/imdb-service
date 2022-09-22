@@ -15,6 +15,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * TitlePrincipals Domain Class witch represent the `title_principal` table.
+ */
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -22,10 +26,13 @@ import lombok.Setter;
 @Entity
 @Table(name = "title_principal",
     indexes = {
-        @Index(name = "index_title_principal_id",  columnList="id ASC", unique = true),
-        @Index(name = "index_title_principal_title_id", columnList="title_id ASC", unique = false),
-        @Index(name = "index_title_principal_person_id", columnList="person_id ASC", unique = false),
-        @Index(name = "index_title_principal_category_id", columnList="category_id ASC", unique = false)})
+        @Index(name = "index_title_principal_id", columnList = "id ASC", unique = true),
+        @Index(name = "index_title_principal_title_id", columnList = "title_id ASC", unique =
+            false),
+        @Index(name = "index_title_principal_person_id", columnList = "person_id ASC", unique =
+            false),
+        @Index(name = "index_title_principal_category_id", columnList = "category_id ASC", unique
+            = false)})
 public class TitlePrincipal implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

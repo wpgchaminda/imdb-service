@@ -1,6 +1,7 @@
 package com.imdb.service.web.api;
 
 import static com.imdb.service.web.api.ApiCons.API_PATH;
+
 import com.imdb.service.domain.Person;
 import com.imdb.service.domain.Title;
 import com.imdb.service.dto.GetBothActorsPlayedTogetherDto;
@@ -44,10 +45,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Log
 @RestController
-@RequestMapping(API_PATH +"/"+ImdbRestService.IMDB_API_PATH+"/"+ ImdbRestService.IMDB_API_VERSION)
+@RequestMapping(API_PATH + "/" + ImdbRestService.IMDB_API_PATH + "/" + ImdbRestService.IMDB_API_VERSION)
 @Api(value = "", tags = {"IMDB-Service"})
 @Tag(name = "IMDB-Service",
-     description = "Provide RESTful APIs to retrieve data from the IMDB Datasets")
+    description = "Provide RESTful APIs to retrieve data from the IMDB Datasets")
 public class ImdbRestService {
 
   public static final String IMDB_API_PATH = "imdbapi";
@@ -252,8 +253,8 @@ public class ImdbRestService {
   @ResponseStatus(value = HttpStatus.OK)
   public @ResponseBody
   Response<RequestCountResult> getRequestCount() {
-    Response<RequestCountResult> response=new Response<>();
-    RequestCountResult requestCountResult=new RequestCountResult(requestCountUtil.getRequestCount());
+    Response<RequestCountResult> response = new Response<>();
+    RequestCountResult requestCountResult = new RequestCountResult(requestCountUtil.getRequestCount());
     response.setData(requestCountResult);
     return response;
   }
